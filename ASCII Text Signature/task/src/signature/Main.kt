@@ -1,57 +1,97 @@
 package signature
 
+import java.io.File
 import java.util.*
 
+var userName = ""
+var userStatus = ""
+var romanFontArray: List<String> = emptyList()
+var mediumFontArray: List<String> = emptyList()
+
 fun main() {
+    readInformationAboutUser()
+    loadFonts()
+    displayCard()
+}
+
+fun readInformationAboutUser() {
     val scanner = Scanner(System.`in`)
     print("Enter name and surname: ")
-    val name = scanner.nextLine()
+    userName = scanner.nextLine()
     print("Enter person's status: ")
-    val status = scanner.nextLine()
+    userStatus = scanner.nextLine()
+}
 
-    val alphabet = " abcdefghijklmnopqrstuvwxyz"
-    val topAlp = arrayOf("    ", "____", "___ ", "____", "___ ", "____", "____", "____", "_  _", "_", " _", "_  _", "_   ", "_  _", "_  _", "____", "___ ", "____", "____", "____", "___", "_  _", "_  _", "_ _ _", "_  _", "_   _", "___ ")
-    val midAlp = arrayOf("    ", "|__|", "|__]", "|   ", "|  \\", "|___", "|___", "| __", "|__|", "|", " |", "|_/ ", "|   ", "|\\/|", "|\\ |", "|  |", "|__]", "|  |", "|__/", "[__ ", " | ", "|  |", "|  |", "| | |", " \\/ ", " \\_/ ", "  / ")
-    val botAlp = arrayOf("    ", "|  |", "|__]", "|___", "|__/", "|___", "|   ", "|__]", "|  |", "|", "_|", "| \\_", "|___", "|  |", "| \\|", "|__|", "|   ", "|_\\|", "|  \\", "___]", " | ", "|__|", " \\/ ", "|_|_|", "_/\\_", "  |  ", " /__")
+fun loadFonts() {
+    romanFontArray = File("C:/Users/user/IdeaProjects/ASCII Text Signature/ASCII Text Signature/task/resources/roman.txt").readLines(Charsets.UTF_8)
+    mediumFontArray = File("C:/Users/user/IdeaProjects/ASCII Text Signature/ASCII Text Signature/task/resources/medium.txt").readLines(Charsets.UTF_8)
+}
 
-    var asterics: CharArray
-    var secondLine = ""
-    var thirdLine = ""
-    var fourthLine = ""
-    var fifthLine = ""
-
-    for (letter in name) {
-        val position = alphabet.indexOf(letter.toLowerCase())
-        secondLine += "${topAlp[position]} "
-        thirdLine += "${midAlp[position]} "
-        fourthLine += "${botAlp[position]} "
-    }
-    if (status.length > secondLine.length) {
-        val firstPart = CharArray((status.length - secondLine.length + 1) / 2)
-        firstPart.fill(' ')
-        val secondPart = CharArray((status.length - secondLine.length + 1) / 2 + (status.length - secondLine.length + 1) % 2)
-        secondPart.fill(' ')
-        secondLine = "*  ${firstPart.joinToString("")}$secondLine${secondPart.joinToString("")} *"
-        thirdLine = "*  ${firstPart.joinToString("")}$thirdLine${secondPart.joinToString("")} *"
-        fourthLine = "*  ${firstPart.joinToString("")}$fourthLine${secondPart.joinToString("")} *"
-        fifthLine = "*  $status  *"
+fun displayCard() {
+    var convertedName = convertToNewFont(romanFontArray, userName)
+    var convertedStatus = convertToNewFont(mediumFontArray, userStatus)
+    val maxLength = if (convertedName[0].length > convertedStatus[0].length) {
+        convertedName[0].length
     } else {
-        val fifthFirstPart = CharArray((secondLine.length - status.length - 1) / 2)
-        fifthFirstPart.fill(' ')
-        val fifthSecondPart = CharArray((secondLine.length - status.length - 1) / 2 + (secondLine.length - status.length - 1) % 2)
-        fifthSecondPart.fill(' ')
-        secondLine = "*  $secondLine *"
-        thirdLine = "*  $thirdLine *"
-        fourthLine = "*  $fourthLine *"
-        fifthLine = "*  ${fifthFirstPart.joinToString("")}$status${fifthSecondPart.joinToString("")}  *"
+        convertedStatus[0].length
     }
+    convertedName = addSpaces(convertedName, maxLength)
+    convertedStatus = addSpaces(convertedStatus, maxLength)
+    val completedCard = addBorders(convertedName, convertedStatus)
+    print(completedCard.joinToString("\n"))
+}
 
-    val asterisks = CharArray(secondLine.length)
-    asterisks.fill('*', 0, secondLine.length)
-    println(asterisks.joinToString(""))
-    println(secondLine)
-    println(thirdLine)
-    println(fourthLine)
-    println(fifthLine)
-    println(asterisks.joinToString(""))
+fun convertToNewFont(fontArray: List<String>, text: String): Array<String> {
+    val fontSize = fontArray[0].split(' ')[0].toInt()
+    val space = when (fontSize) {
+        10 -> "          "
+        3 -> "     "
+        else -> ""
+    }
+    val rows = Array(fontSize) { "" }
+    for (letter in text) {
+        val letterIndex = findLetterIndexToStartWith(fontArray, fontSize, letter)
+        for (i in 0 until fontSize) {
+            if (letterIndex == -1) {
+                rows[i] += space
+            } else {
+                rows[i] += fontArray[letterIndex + i]
+            }
+        }
+    }
+    return rows
+}
+
+fun findLetterIndexToStartWith(fontArray: List<String>, fontSize: Int, letter: Char): Int {
+    for (index in 1 until fontArray.size step fontSize + 1) {
+        val currentLetter = fontArray[index].split(' ')[0][0]
+        if (currentLetter == letter) {
+            return index + 1
+        }
+    }
+    return -1
+}
+
+fun addSpaces(arr: Array<String>, length: Int): Array<String> {
+    val spacesCount = length - arr[0].length
+    if (spacesCount == 0) {
+        return arr
+    }
+    val leftSpacesString = CharArray(spacesCount / 2) { ' ' }.joinToString("")
+    val rightSpacesString = CharArray(spacesCount - spacesCount / 2) { ' ' }.joinToString("")
+    for (i in arr.indices) {
+        arr[i] = "$leftSpacesString${arr[i]}$rightSpacesString"
+    }
+    return arr
+}
+
+fun addBorders(namePart: Array<String>, statusPart: Array<String>): Array<String> {
+    for (i in namePart.indices) {
+        namePart[i] = "88  ${namePart[i]}  88"
+    }
+    for (i in statusPart.indices) {
+        statusPart[i] = "88  ${statusPart[i]}  88"
+    }
+    val borderRow = CharArray(namePart[0].length) { '8' }.joinToString("")
+    return arrayOf(borderRow, *namePart, *statusPart, borderRow)
 }

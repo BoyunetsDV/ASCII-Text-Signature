@@ -15,7 +15,7 @@ stages:
   is_completed: true
 - id: 393
   step: 6176
-  is_completed: false
+  is_completed: true
 topics:
   0:
   - title: Computer programming
@@ -89,7 +89,7 @@ topics:
   - title: Processing strings
     theory_id: 9027
   - title: IDE
-    theory_id: 3805
+    theory_id: 10996
   - title: IntelliJ IDEA
     theory_id: 3801
   - title: IDEA Basics

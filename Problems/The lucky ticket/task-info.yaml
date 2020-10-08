@@ -5,8 +5,5 @@ files:
   text: "fun main() {\n    // write your code here    \n}"
   learner_created: false
 feedback_link: https://hyperskill.org/learn/step/9031
-status: Unchecked
-feedback:
-  message: Failed to get check result from JetBrains Academy
-  time: Wed, 23 Sep 2020 12:06:40 UTC
+status: Solved
 record: -1
